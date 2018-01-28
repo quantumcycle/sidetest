@@ -1,0 +1,75 @@
+{
+  "name": "sidetest",
+  "displayName": "Side Test",
+  "description": "An extension to navigate from and to test files",
+  "version": "1.0.0",
+  "publisher": "matdurand",
+  "engines": {
+    "vscode": "^1.19.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.sidetest.openTest",
+    "onCommand:extension.sidetest.openTestSplit",
+    "onCommand:extension.sidetest.openSource",
+    "onCommand:extension.sidetest.openSourceSplit"
+  ],
+  "main": "./extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.sidetest.openTest",
+        "title": "Side test: Open test file"
+      },
+      {
+        "command": "extension.sidetest.openTestSplit",
+        "title": "Side test: Open test file side by side"
+      },
+      {
+        "command": "extension.sidetest.openSource",
+        "title": "Side test: Open source file"
+      },
+      {
+        "command": "extension.sidetest.openSourceSplit",
+        "title": "Side test: Open source file side by side"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Side test configuration",
+      "properties": {
+        "sidetest.unitTest.subFolder": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "The subfolder to look in for test, relative to the file under test. Default is null, the test file is in the same folder as the source file."
+        },
+        "sidetest.unitTest.preExtensionSuffix": {
+          "type": ["string", "null"],
+          "default": "spec",
+          "description": "The suffix to put between the filename and extension to find the matching test. For example the value [spec] would make a.js search for a.spec.js. Default value is [spec]"
+        },
+        "sidetest.createTestIfMissing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically create the test file when trying to open and the test is missing."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6",
+    "eslint": "^4.6.1",
+    "@types/node": "^7.0.43",
+    "@types/mocha": "^2.2.42"
+  },
+  "dependencies": {
+    "fs-extra": "5.0.0"
+  }
+}
