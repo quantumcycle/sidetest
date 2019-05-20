@@ -2,7 +2,7 @@
   "name": "sidetest",
   "displayName": "Side Test",
   "description": "An extension to navigate from and to test files",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "icon": "navigate.png",
   "repository": {
     "type": "git",
