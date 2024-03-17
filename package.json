@@ -2,7 +2,7 @@
   "name": "sidetest",
   "displayName": "Side Test",
   "description": "An extension to navigate from and to test files",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "publisher": "matdurand",
   "icon": "navigate.png",
   "repository": {
@@ -72,7 +72,7 @@
           "default": "spec",
           "description": "The suffix to put between the filename and extension to find the matching test. For example the value [spec] would make a.js search for a.spec.js. Default value is [spec]"
         },
-        "sitetest.unitTest.prefix": {
+        "sidetest.unitTest.prefix": {
           "type": [
             "string",
             "null"
@@ -80,7 +80,7 @@
           "default": null,
           "description": "This is a prefix to add to the original filename to find the matching test file. For example [test_] would match calculator.py with test_calculator.py."
         },
-        "sitetest.unitTest.suffix": {
+        "sidetest.unitTest.suffix": {
           "type": [
             "string",
             "null"
