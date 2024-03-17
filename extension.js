@@ -28,11 +28,9 @@ function activate(context) {
   );
   context.subscriptions.push(openSourceSplitCommand);
 }
-exports.activate = activate;
 
 // this method is called when your extension is deactivated
 function deactivate() {}
-exports.deactivate = deactivate;
 
 function openTestForActiveEditor(splitView) {
   return () => {
@@ -91,6 +89,45 @@ function getTestFile(sourceFile) {
   }
 }
 
+function createTestFileName(sourceFileName, sourceFileExtension) {
+  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
+  const testPrefix = getUnitTestPrefix();
+  const testSuffix = getUnitTestSuffix();
+
+  let testFileName = "";
+  if (testPrefix) {
+    testFileName = testFileName + testPrefix;
+  }
+  testFileName = testFileName + sourceFileName;
+  if (testSuffix) {
+    testFileName = testFileName + testSuffix;
+  }
+
+  if (testPreExtensionSuffix) {
+    testFileName = testFileName + "." + testPreExtensionSuffix;
+  }
+  testFileName = testFileName + sourceFileExtension;
+  return testFileName;
+}
+
+function createSourceFileName(testFileName, testFileExtension) {
+  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
+  const testPrefix = getUnitTestPrefix();
+  const testSuffix = getUnitTestSuffix();
+
+  let sourceFileName = testFileName;
+  if (testPrefix) {
+    sourceFileName = sourceFileName.replace(testPrefix, "");
+  }
+  if (testSuffix) {
+    sourceFileName = sourceFileName.replace(testSuffix, "");
+  }
+  if (testPreExtensionSuffix) {
+    sourceFileName = sourceFileName.replace("." + testPreExtensionSuffix, "");
+  }
+  return sourceFileName + testFileExtension;
+}
+
 function getTestFileInRootfolder(
   sourceFileLocation,
   sourceFileExtension,
@@ -109,10 +146,7 @@ function getTestFileInRootfolder(
     path.sep +
     relativeSourceFileLocationPaths.join(path.sep);
 
-  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
-  const testFileName = testPreExtensionSuffix
-    ? sourceFileName + "." + testPreExtensionSuffix + sourceFileExtension
-    : sourceFileName + sourceFileExtension;
+  var testFileName = createTestFileName(sourceFileName, sourceFileExtension);
   return path.join(testFileLocation, testFileName);
 }
 
@@ -125,10 +159,7 @@ function getRelativeTestFile(
   const testFileLocation = testSubFolder
     ? path.join(sourceFileLocation, testSubFolder)
     : sourceFileLocation;
-  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
-  const testFileName = testPreExtensionSuffix
-    ? sourceFileName + "." + testPreExtensionSuffix + sourceFileExtension
-    : sourceFileName + sourceFileExtension;
+  var testFileName = createTestFileName(sourceFileName, sourceFileExtension);
   return path.join(testFileLocation, testFileName);
 }
 
@@ -171,11 +202,7 @@ function getSourceFileInRootFolder(
     path.sep +
     relativeSourceFileLocationPaths.join(path.sep);
 
-  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
-  const sourceFileName = testPreExtensionSuffix
-    ? testFileName.replace(new RegExp("." + testPreExtensionSuffix + "$"), "") +
-      testFileExtension
-    : testFileName + testFileExtension;
+  const sourceFileName = createSourceFileName(testFileName, testFileExtension);
   return path.join(sourceFileLocation, sourceFileName);
 }
 
@@ -188,11 +215,7 @@ function getRelativeSourceFile(
   const sourceFileLocation = testSubFolder
     ? testFileLocation.replace(new RegExp(testSubFolder + "$"), "")
     : testFileLocation;
-  const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
-  const sourceFileName = testPreExtensionSuffix
-    ? testFileName.replace(new RegExp("." + testPreExtensionSuffix + "$"), "") +
-      testFileExtension
-    : testFileName + testFileExtension;
+  const sourceFileName = createSourceFileName(testFileName, testFileExtension);
   return path.join(sourceFileLocation, sourceFileName);
 }
 
@@ -202,21 +225,37 @@ function isTestFile(filename) {
   const testFileName = path.basename(filename, testFileExtension);
 
   const testPreExtensionSuffix = getUnitTestPreExtensionSuffix();
-  const fileNameMatchesTestFileName = testPreExtensionSuffix
-    ? testFileName.endsWith(testPreExtensionSuffix)
+  const testPrefix = getUnitTestPrefix();
+  const testSuffix = getUnitTestSuffix();
+  var fileNameMatchesTestFileName = testPrefix
+    ? testFileName.startsWith(testPrefix)
     : true;
+  if (fileNameMatchesTestFileName) {
+    if (testPreExtensionSuffix && testSuffix) {
+      fileNameMatchesTestFileName = testFileName.endsWith(
+        testSuffix + "." + testPreExtensionSuffix
+      );
+    } else if (testPreExtensionSuffix) {
+      fileNameMatchesTestFileName = testFileName.endsWith(
+        testPreExtensionSuffix
+      );
+    } else if (testSuffix) {
+      fileNameMatchesTestFileName = testFileName.endsWith(testSuffix);
+    }
+  }
 
   const testSubFolder = getUnitTestSubFolder();
   const fileLocationMatchesTestFileLocation = testSubFolder
     ? testFileLocation.split(path.sep).pop() === testSubFolder
     : true;
+
   return fileLocationMatchesTestFileLocation && fileNameMatchesTestFileName;
 }
 
 function openFile(filename, splitView) {
   return vscode.workspace
     .openTextDocument(vscode.Uri.file(filename))
-    .then(document =>
+    .then((document) =>
       vscode.window.showTextDocument(
         document,
         splitView ? vscode.ViewColumn.Two : vscode.ViewColumn.One
@@ -246,8 +285,21 @@ function getUnitTestPreExtensionSuffix() {
     .get("unitTest.preExtensionSuffix");
 }
 
+function getUnitTestPrefix() {
+  return vscode.workspace.getConfiguration("sidetest").get("unitTest.prefix");
+}
+
+function getUnitTestSuffix() {
+  return vscode.workspace.getConfiguration("sidetest").get("unitTest.suffix");
+}
+
 function shouldCreateTestIfMissing() {
   return vscode.workspace
     .getConfiguration("sidetest")
     .get("createTestIfMissing");
 }
+
+module.exports = {
+  activate,
+  deactivate,
+};
