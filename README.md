@@ -16,6 +16,8 @@ If your test files are located in a separate root folder:
 In either mode, you can specify the following options:
 
 - `sidetest.unitTest.preExtensionSuffix`: the suffix to add before the file extension to find the matching test. Common suffix are 'test' and 'spec'. **Default is [spec]**
+- `sidetest.unitTest.prefix`: the prefix to add before the source filename. No default
+- `sidetest.unitTest.suffix`: the suffix to add after the source filename. No default
 - `sidetest.createTestIfMissing`: When set to true, the test file will be created if you try to open it and it doesn't exist. **false by default**
 
 ## Commands
